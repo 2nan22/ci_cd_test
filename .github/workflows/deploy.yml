@@ -44,6 +44,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: 31222
+          timeout: 60s
+          command_timeout: 10m
           script: |
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose -f ~/ci_cd_test/docker-compose.yml pull
