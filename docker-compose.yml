@@ -2,5 +2,5 @@ services:
   web:
     image: ghcr.io/2nan22/ci_cd_test:latest
     ports:
-      - "80:5000"
+      - "31298:5000"
     restart: always
