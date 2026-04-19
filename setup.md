@@ -550,3 +550,45 @@ jobs:
 | `port already in use` | 기존 컨테이너가 포트 점유 | `docker compose down` 후 재시작 |
 | Runner 서비스 시작 안 됨 | 계정 비밀번호 오류 또는 권한 부족 | 로컬 시스템 계정으로 복구 후 재설정 |
 | `image not found` | GHCR 이미지명 대소문자 불일치 | 이미지명 항상 소문자로 통일 |
+
+
+
+
+--> 다른 프로젝트에 적용하려면?
+
+필요한 작업 목록
+항목	이유
+1. Self-hosted Runner 재등록	
+- Runner는 레포 단위로 등록됨. 
+- 회사 레포에 별도 등록 필요 (같은 서버에 추가 가능)
+
+2. docker-compose.prod.yml 작성	
+- 현재 소스 볼륨 마운트 구조라 CI/CD 불가. 운영용 분리 필요
+
+3. 프론트엔드 Dockerfile 작성
+- 현재 Dockerfile.dev만 있음. 프로덕션용 별도 작성 필요
+
+4. deploy.yml workflow 작성	
+- 회사 레포에 .github/workflows/deploy.yml 없음
+
+5. .env 처리	
+- DB 비밀번호, SECRET_KEY 등 민감 정보를 GitHub Secrets로 관리
+
+Secrets는 어떻게?
+GITHUB_TOKEN은 자동 제공이라 등록 불필요.
+
+앱 환경변수(.env 내용)는 회사 레포 Secrets에 등록 후 workflow에서 주입:
+
+
+- name: Create .env
+  run: |
+    echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+    echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+진행 순서 추천
+
+1. 회사 레포에 Self-hosted Runner 등록 (서버에서 추가 설치)
+2. 프론트엔드 Dockerfile 작성
+3. docker-compose.prod.yml 작성
+4. deploy.yml workflow 작성
+5. 회사 레포 Secrets 등록
+6. 테스트 push
